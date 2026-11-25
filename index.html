@@ -85,10 +85,25 @@ function syncBaseline(s){const b={patches:new Map(),imports:new Map(),items:new 
  for(const r of s.rmArchives||[])if(r&&r.id)b.items.set('rm|'+r.id,jstr(r));
  return b}
 
-async function syncLoad(){const {data,error}=await sb.rpc('load_changes');if(error)throw error;
- const patches={};for(const p of data.patches||[])if(p&&p.id)patches[p.id]=p.patch||{};
- const imports=(data.imports||[]).filter(r=>r&&typeof r.id==='string');
- const cls={},pst={},rm=[];for(const it of data.items||[]){if(it.kind==='class')cls[it.key]=it.value;else if(it.kind==='pstock')pst[it.key]=it.value;else if(it.kind==='rm'&&it.value&&it.value.id)rm.push(it.value)}
+/* Browser copy of the shared updates: only changes since the last visit are downloaded. */
+function loadingText(t){const el=g('loadingText');if(el)el.textContent=t}
+const SYNC_CACHE_DB='jazeera-shared-cache-v1';
+function syncCacheOpen(){return new Promise((res,rej)=>{let r;try{r=indexedDB.open(SYNC_CACHE_DB,1)}catch(e){rej(e);return}r.onupgradeneeded=()=>r.result.createObjectStore('c');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error);r.onblocked=()=>rej(Error('blocked'))})}
+async function syncCacheGet(key){try{const db=await syncCacheOpen();try{return await new Promise(res=>{const q=db.transaction('c').objectStore('c').get(key);q.onsuccess=()=>res(q.result||null);q.onerror=()=>res(null)})}finally{db.close()}}catch{return null}}
+async function syncCachePut(key,val){try{const db=await syncCacheOpen();try{await new Promise(res=>{const tx=db.transaction('c','readwrite');tx.objectStore('c').put(val,key);tx.oncomplete=res;tx.onerror=tx.onabort=res})}finally{db.close()}}catch{}}
+async function syncLoad(){const key=SUPABASE_URL+'|'+ME.id,scope=JSON.stringify([ME.role,seesAllDcs(),ME.dcs]);
+ let c=await syncCacheGet(key);if(!c||c.v!==1||c.scope!==scope)c={v:1,scope,sp:0,si:0,ss:0,patches:{},imports:{},items:{}};
+ const first=!c.sp&&!c.si&&!c.ss;let got=0;
+ for(let page=0;page<400;page++){const {data,error}=await sb.rpc('load_changes_since',{p_sp:c.sp,p_si:c.si,p_ss:c.ss,p_limit:3000});if(error)throw error;
+  for(const p of data.patches||[])if(p&&p.id)c.patches[p.id]=p.patch||{};
+  for(const r of data.imports||[])if(r&&typeof r.id==='string')c.imports[r.id]=r;
+  for(const it of data.items||[])if(it&&it.kind)c.items[it.kind+'|'+it.key]=it;
+  got+=(data.patches||[]).length+(data.imports||[]).length;c.sp=Number(data.sp)||c.sp;c.si=Number(data.si)||c.si;c.ss=Number(data.ss)||c.ss;
+  if(first)loadingText(`Downloading shared updates (first time on this device)… ${got.toLocaleString()}`);
+  if(!data.more)break}
+ if(got||first){loadingText('Saving a copy on this device…');await syncCachePut(key,c)}
+ const patches=c.patches,imports=Object.values(c.imports);
+ const cls={},pst={},rm=[];for(const it of Object.values(c.items)){if(it.kind==='class')cls[it.key]=it.value;else if(it.kind==='pstock')pst[it.key]=it.value;else if(it.kind==='rm'&&it.value&&it.value.id)rm.push(it.value)}
  rm.sort((a,b)=>String(a.at||'').localeCompare(String(b.at||'')));
  Sync.cache={patches,imports,classifications:cls,'planning-stock':pst,'rm-reports':rm};
  Sync.base=syncBaseline({patches,imports,classOverrides:cls,planningStock:pst,rmArchives:rm});
