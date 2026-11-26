@@ -1360,7 +1360,7 @@ gsStartWorkspace().then(()=>{try{if(Sync.getState&&syncDiff().length)cloudPersis
           ${!emergency&&proposal.options.length>5?'<button class="btn" type="button" id="showroomMore">Show all eligible showrooms</button>':''}
           <p class="sub">${emergency?'Select all prioritizes the assigned region, then the highest available stock':'Select all fills quantities from highest available stock first'}, up to the shortfall. Clear it to deselect all.</p>
           <p id="showroomTotal" aria-live="polite"></p>
-          <p id="showroomHoldStatus" role="status"></p><button class="btn" type="submit">Confirm selected holds</button>
+          <p id="showroomHoldStatus" role="status"></p><button class="btn" id="showroomPlanExport" type="button">Export allocation plan Excel</button> <button class="btn" type="submit">Confirm selected holds</button>
         </form>`);
       const form=$('showroomHoldForm'), submit=form.querySelector('[type="submit"]');
       let selections=null;
@@ -1372,20 +1372,53 @@ gsStartWorkspace().then(()=>{try{if(Sync.getState&&syncDiff().length)cloudPersis
       selectAll.onchange=()=>{const selected=selectAll.checked;let remaining=proposal.shortfall;checks.forEach((c,i)=>{c.checked=selected;quantities[i].disabled=!selected;const qty=selected?Math.min(proposal.options[i].free,remaining):0;quantities[i].value=qty;remaining=Math.max(0,remaining-qty);});if(selected){form.querySelectorAll('.showroomMore').forEach(r=>r.hidden=false);$('showroomMore')?.remove();}update();};
       quantities.forEach(q=>q.oninput=update);
       if($('showroomMore'))$('showroomMore').onclick=()=>{form.querySelectorAll('.showroomMore').forEach(r=>r.hidden=false);$('showroomMore').remove();};
+      $('showroomPlanExport').onclick=()=>exportAllocationPlan(row,proposal,snapshot,emergency,checks,quantities);
       update();
       form.onsubmit=async event=>{
         event.preventDefault();
         const sum=total();
         if(sum<=0||sum>proposal.shortfall)return;
-        submit.disabled=true;selectAll.disabled=true;checks.forEach(c=>c.disabled=true);quantities.forEach(q=>q.disabled=true);
+        submit.disabled=true;$('showroomPlanExport').disabled=true;selectAll.disabled=true;checks.forEach(c=>c.disabled=true);quantities.forEach(q=>q.disabled=true);
         try{
           selections ||= proposal.options.flatMap((o,i)=>checks[i].checked&&Number(quantities[i].value)>0?[{request_id:crypto.randomUUID(),store:o.code,unit:o.unit,qty:Number(quantities[i].value)}]:[]);
           await rpc('reserve_many',{order_id:row.order_id,snapshot,version:proposal.version,emergency,selections});
           $('bulkModal').close();refresh();
         }catch(error){$('showroomHoldStatus').textContent=error.message;}
-        finally{selectAll.disabled=false;checks.forEach(c=>c.disabled=false);quantities.forEach((q,i)=>q.disabled=!checks[i].checked);submit.disabled=total()<=0||total()>proposal.shortfall;}
+        finally{if($('showroomPlanExport'))$('showroomPlanExport').disabled=false;selectAll.disabled=false;checks.forEach(c=>c.disabled=false);quantities.forEach((q,i)=>q.disabled=!checks[i].checked);submit.disabled=total()<=0||total()>proposal.shortfall;}
       };
     } catch(error) { notify(error.message); }
+  }
+
+  function exportAllocationPlan(row,proposal,snapshot,emergency,checks,quantities){
+    if(!allowed())return;
+    try{
+      const chosen=quantities.map((q,i)=>checks[i].checked?Number(q.value):0);
+      if(chosen.some((q,i)=>!Number.isFinite(q)||q<0||q>Number(proposal.options[i].free))||chosen.reduce((n,q)=>n+q,0)>proposal.shortfall)throw Error('Review selected quantities: they must not exceed showroom stock or the order shortfall.');
+      const total=chosen.reduce((n,q)=>n+q,0),at=time(new Date().toISOString())+' KSA';
+      const author=typeof sessionUser!=='undefined'?(sessionUser?.name||sessionUser?.email||sessionUser?.id||'Sales Fulfilment'):typeof actorName==='function'?actorName():'Sales Fulfilment';
+      const template=JSON.parse($('xlsxTemplate').textContent),encoder=new TextEncoder();
+      const parts=Object.fromEntries(Object.entries(template.parts).map(([name,b64])=>[name,new TextDecoder().decode(Uint8Array.from(atob(b64),c=>c.charCodeAt(0)))]));
+      parts['xl/workbook.xml']=parts['xl/workbook.xml'].replace('name="Orders"','name="Allocation plan"').replace('</x:workbook>','<x:definedNames><x:definedName name="_xlnm.Print_Titles" localSheetId="0">&apos;Allocation plan&apos;!$1:$9</x:definedName></x:definedNames></x:workbook>');
+      const font=(size,color,bold=false)=>'<font><sz val="'+size+'"/><color rgb="FF'+color+'"/><name val="Calibri"/>'+(bold?'<b/>':'')+'</font>';
+      const fill=color=>'<fill><patternFill patternType="solid"><fgColor rgb="FF'+color+'"/><bgColor indexed="64"/></patternFill></fill>';
+      const xf=(fontId,fillId,borderId=1,numFmtId=0,align='left',wrap=true)=>'<xf numFmtId="'+numFmtId+'" fontId="'+fontId+'" fillId="'+fillId+'" borderId="'+borderId+'" xfId="0" applyNumberFormat="1" applyAlignment="1"><alignment horizontal="'+align+'" vertical="center" wrapText="'+(wrap?1:0)+'"/></xf>';
+      const formats=[xf(0,0),xf(1,2,0),xf(4,5,0),xf(3,4,0),xf(0,4,0),xf(2,3,1,0,'center'),xf(0,0,1,3,'right'),xf(0,5),xf(4,0,0),xf(3,4,0,165,'right'),xf(0,4),xf(0,4,1,3,'right'),xf(3,6,1,3,'right'),xf(2,3,1,3,'right'),xf(0,0,1,164,'right'),xf(0,4,1,164,'right'),xf(3,6,1,164,'right'),xf(2,3,1,164,'right')];
+      parts['xl/styles.xml']='<?xml version="1.0" encoding="UTF-8"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="2"><numFmt numFmtId="164" formatCode="#,##0.###"/><numFmt numFmtId="165" formatCode="0.0%"/></numFmts><fonts count="5">'+font(11,'132B42')+font(18,'FFFFFF',true)+font(10,'FFFFFF',true)+font(10,'132B42',true)+font(9,'657787')+'</fonts><fills count="7"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>'+fill('132B42')+fill('287E83')+fill('EDF5F6')+fill('FFF7DB')+fill('E5F3E7')+'</fills><borders count="2"><border/><border><left style="thin"><color rgb="FFDCE5EB"/></left><right style="thin"><color rgb="FFDCE5EB"/></right><top style="thin"><color rgb="FFDCE5EB"/></top><bottom style="thin"><color rgb="FFDCE5EB"/></bottom></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="18">'+formats.join('')+'</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+      const cell=(ref,v,style=0)=>{const numeric=typeof v==='number'?v:v?.formula?v.value:null;if(typeof numeric==='number'&&!Number.isInteger(numeric)&&({6:14,11:15,12:16,13:17})[style])style=({6:14,11:15,12:16,13:17})[style];if(v?.formula)return '<x:c r="'+ref+'" s="'+style+'"><x:f>'+xmlSafe(v.formula)+'</x:f><x:v>'+v.value+'</x:v></x:c>';return typeof v==='number'&&Number.isFinite(v)?'<x:c r="'+ref+'" s="'+style+'"><x:v>'+v+'</x:v></x:c>':'<x:c r="'+ref+'" s="'+style+'" t="inlineStr"><x:is><x:t xml:space="preserve">'+xmlSafe(v??'')+'</x:t></x:is></x:c>';};
+      const line=(n,cells,height=25)=>'<x:row r="'+n+'" ht="'+height+'" customHeight="1">'+cells.map(([ref,v,style])=>cell(ref+n,v,style)).join('')+'</x:row>';
+      const sheet=[line(1,[['A','JAZEERA SHOWROOM ALLOCATION PLAN',1]],32),line(2,[['A','PROPOSED — NOT RESERVED · Confirm holds in the Tracker before transferring stock.',2]],28),line(3,[['A','Order / line',3],['B',String(row.order||'')+' / '+String(row.line||''),4],['D','Assigned DC',3],['E',row.dc,4],['F','Channel',3],['G',row.channel||'',4],['I','Order date',3],['J',row.created||'',4]]),line(4,[['A','SKU',3],['B',String(row.sku||''),4],['D','Description',3],['E',row.description||'',4]],30),line(5,[['A','Customer',3],['B',row.customer||'',4]],28),line(6,[['A','Shortfall',3],['B',Number(proposal.shortfall),6],['C','Planned qty',3],['D',{formula:'SUM(F10:F'+(proposal.options.length+9)+')',value:total},12],['E','Still short',3],['F',{formula:'MAX(0,B6-D6)',value:Math.max(0,proposal.shortfall-total)},6],['G','Coverage',3],['H',{formula:'IFERROR(D6/B6,0)',value:proposal.shortfall?total/proposal.shortfall:0},9],['I','Mode',3],['J',emergency?'Emergency':'Normal',4]]),line(7,[['A','Prepared by '+author+' · '+at,8]],23)];
+      const headers=['Showroom code','Showroom name','Source DC','Region','Available','Planned qty','Unit','Action status','Actual released','Team remarks'];
+      sheet.push(line(9,headers.map((v,i)=>[colLetter(i),v,5]),30));
+      proposal.options.forEach((o,i)=>{const values=[String(o.code),o.name,o.source_dc||row.dc,o.region||'',Number(o.free),chosen[i],o.unit,'','',''];sheet.push(line(i+10,values.map((v,c)=>[colLetter(c),v,c>=7?7:c===5&&chosen[i]>0?12:typeof v==='number'?(i%2?11:6):(i%2?10:0)]),32));});
+      const end=proposal.options.length+9,totals=end+1;sheet.push(line(totals,[['A','TOTAL',13],['E',{formula:'SUM(E10:E'+end+')',value:proposal.options.reduce((n,o)=>n+Number(o.free),0)},13],['F',{formula:'D6',value:total},13]],27));
+      const merges=['A1:J1','A2:J2','B3:C3','G3:H3','B4:C4','E4:J4','B5:J5','A7:J7','A'+totals+':D'+totals];
+      const widths=[16,42,13,22,14,14,11,20,18,35];
+      parts['xl/worksheets/sheet1.xml']='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><x:worksheet xmlns:x="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><x:sheetPr><x:pageSetUpPr fitToPage="1"/></x:sheetPr><x:sheetViews><x:sheetView workbookViewId="0" showGridLines="0" zoomScale="85"><x:pane ySplit="9" topLeftCell="A10" activePane="bottomLeft" state="frozen"/></x:sheetView></x:sheetViews><x:cols>'+widths.map((w,i)=>'<x:col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join('')+'</x:cols><x:sheetData>'+sheet.join('')+'</x:sheetData><x:autoFilter ref="A9:J'+end+'"/><x:mergeCells count="'+merges.length+'">'+merges.map(ref=>'<x:mergeCell ref="'+ref+'"/>').join('')+'</x:mergeCells><x:pageMargins left="0.25" right="0.25" top="0.4" bottom="0.4" header="0.2" footer="0.2"/><x:pageSetup orientation="landscape" paperSize="9" fitToWidth="1" fitToHeight="0"/></x:worksheet>';
+      const files=Object.entries(parts).map(([name,text])=>({name,chunks:[encoder.encode(text)]}));
+      const filename=('Showroom_Allocation_Plan_'+row.order+'_'+row.line).replace(/[^A-Za-z0-9_-]/g,'_')+'.xlsx';
+      download(filename,storeZip(files),'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      $('showroomHoldStatus').textContent='Single-sheet allocation plan exported. Confirm holds to reserve stock.';
+    }catch(error){$('showroomHoldStatus').textContent='Plan export failed: '+error.message;}
   }
 
   async function exportAudit(button){
@@ -1549,5 +1582,101 @@ gsStartWorkspace().then(()=>{try{if(Sync.getState&&syncDiff().length)cloudPersis
 })();
 
 
+
+/* RM_COMPLETE_SNAPSHOT_FIX_BEGIN */
+/* Complete daily RM shortage snapshots. Load after the Tracker's core script. */
+(() => {
+  if(typeof planRmReport!=='function'||typeof reviewRmReport!=='function'||typeof rmColumnMap!=='function')return;
+  let lastPlan=null;
+  const basePlan=planRmReport,baseReview=reviewRmReport,baseColumns=rmColumnMap;
+  const closed=row=>terminal(row)||!!row.completedDate||!!row.cancelledDate;
+  const isAvailable=entry=>/^(yes|y|available)$/i.test(entry.availability||'');
+  planRmReport=function(data,columns,options){
+    const complete=options.completeScope??($('rmCompleteScope')?.checked??true);
+    if(complete&&options.section)throw Error('A complete daily list must cover all sections. Clear the section filter, or use a partial list.');
+    const result=basePlan(data,columns,options);
+    const entries=result.entries;
+    if(!entries.length)return result; // An empty/unreadable file never clears shortages.
+    const dcScope=options.dc?[options.dc]:null;
+    // Replace imported RM values, including a missing ETA, rather than retaining stale values.
+    result.updates=result.updates.filter(u=>!closed(u.row));
+    for(const update of result.updates){
+      const entry=entries.find(e=>e.sku===update.row.item&&(!e.dc||e.dc===update.row.dc));
+      if(!entry)continue;
+      Object.assign(update.delta,{rmEta:entry.etaText||'',materialAvailabilityDate:entry.date||entry.etaText||'',rmAvailability:entry.availability||(isAvailable(entry)?'YES':'NO'),rmStatus:entry.status||'',rmDetails:entry.note||''});
+    }
+    let cleared=0;
+    if(complete){
+      const updated=new Set(result.updates.map(u=>u.id));
+      for(const row of scope()){
+        if(closed(row)||!['SO','STO'].includes(row.type)||dcScope&&!dcScope.includes(row.dc))continue;
+        // Listed but conflicting entries are protected from accidental NO assignment.
+        if(entries.some(e=>e.sku===row.item&&(!e.dc||e.dc===row.dc))||updated.has(row.id))continue;
+        if(row.rmManual==='yes'&&!options.overwrite){result.manual++;continue;}
+        const delta={rmShortage:'NO',rmEta:'',rmAvailability:'',materialAvailabilityDate:'',rmStatus:'',rmDetails:'',rmSection:'',rmEtaMeaning:'rm',rmManual:'',rmSource:options.file};
+        let preservedEta=true;
+        if(!row.coverageRun&&row.rmManual!=='yes'&&row.rmEtaMeaning==='fg'&&row.rmAppliedEta&&row.eta===row.rmAppliedEta){delta.eta='';delta.rmAppliedEta='';preservedEta=false;}
+        result.updates.push({id:row.id,row,delta,preservedEta,before:rmFingerprint(row)});cleared++;
+      }
+    }
+    result.completeScope=complete;result.completeDcs=dcScope;result.cleared=cleared;
+    lastPlan={result,file:options.file};return result;
+  };
+  // The user confirmed that their latest existing all-sections report is a complete daily list.
+  // New partial reports carry an explicit mode so they cannot be mistaken for complete lists.
+  const completeReport=report=>report.completeScope===true||(report.snapshotMode!=='partial'&&!report.partial&&!report.section);
+  if(typeof rmShortageValue==='function'){
+    const originalShortage=rmShortageValue;
+    rmShortageValue=function(row){
+      const manualStatus=row.rmManual==='yes'&&['YES','NO'].includes(row.rmShortage);
+      if(!closed(row)&&!manualStatus){
+        for(const report of availableRmReports().slice().reverse()){
+          if(report.dc&&report.dc!==row.dc)continue;
+          const matches=(report.entries||[]).filter(e=>e.sku===row.item&&(!e.dc||e.dc===row.dc));
+          if(matches.length)return matches.some(e=>!isAvailable(e))?'YES':'NO';
+          if(completeReport(report)&&!report.section)return 'NO';
+        }
+      }
+      return originalShortage(row);
+    };
+  }
+  if(typeof tracker==='function'){
+    const originalTracker=tracker;
+    tracker=function(){const value=originalTracker.apply(this,arguments);const latest=availableRmReports().at(-1);if(latest&&$('rmfilter')){
+      const notice=document.createElement('p');notice.id='rmActiveSnapshot';notice.className='sub';
+      notice.textContent='RM list: '+latest.file+' · '+(completeReport(latest)?'Complete daily list: unlisted open lines = No':'Partial list: unlisted lines unchanged')+' · '+(latest.dc||'All permitted DCs')+'.';
+      $('rmfilter').closest('.toolbar').after(notice);
+      const oldNote=[...$('content').querySelectorAll('.sub')].find(p=>p.textContent.startsWith('RM filter applies to individual lines.'));if(oldNote)oldNote.textContent='RM filters apply to individual lines. Complete daily lists treat missing SKUs as No. Order counts include distinct orders with at least one matching line.';
+    }return value;};
+  }
+  rmColumnMap=function(){
+    const value=baseColumns.apply(this,arguments),box=$('rmCompleteScope');
+    if(!box)return value;
+    box.checked=true;
+    if($('rmOverwrite'))$('rmOverwrite').parentElement.lastChild.textContent=' Replace manually adjusted RM data within the selected DC scope';
+    box.parentElement.lastChild.textContent=' Complete daily shortage list: set unmatched open SO / STO lines to NO in this DC scope.';
+    const notice=document.createElement('p');notice.id='rmCompleteNotice';notice.className='notice';
+    const summary=()=>{notice.textContent=box.checked?'Complete daily list: listed shortage SKUs → YES; unmatched open lines → NO. Manual RM changes stay protected unless replacement is selected.':'Partial list: only listed SKUs are updated; missing SKUs are unchanged.';};
+    $('rmScopeSummary').after(notice);
+    box.addEventListener('change',summary);
+    $('rmSection')?.addEventListener('change',()=>{if($('rmSection').value)box.checked=false;summary();});
+    box.dispatchEvent(new Event('change'));summary();return value;
+  };
+  reviewRmReport=function(){
+    lastPlan=null;const value=baseReview.apply(this,arguments);
+    if(typeof rmReportDraft!=='undefined'&&rmReportDraft&&lastPlan?.file===rmReportDraft.file){
+      rmReportDraft.completeScope=lastPlan.result.completeScope;
+      rmReportDraft.snapshotMode=lastPlan.result.completeScope?'complete':'partial';
+      rmReportDraft.completeDcs=lastPlan.result.completeDcs;
+      const p=document.createElement('p');p.id='rmCompleteSummary';p.className='notice';
+      p.textContent=lastPlan.result.completeScope?'Complete snapshot: '+lastPlan.result.updates.filter(u=>u.delta.rmShortage==='YES').length+' lines → YES; '+lastPlan.result.updates.filter(u=>u.delta.rmShortage==='NO').length+' lines → NO. Scope: '+(lastPlan.result.completeDcs?.join(', ')||'All permitted DCs')+'.':'Partial update: missing SKUs remain unchanged.';
+      $('rmApply')?.before(p);
+    }
+    return value;
+  };
+})();
+
+render();
+/* RM_COMPLETE_SNAPSHOT_FIX_END */
 }
 </script></body></html>
