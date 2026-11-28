@@ -20,7 +20,43 @@
 .check{display:flex;gap:8px;align-items:center;font-size:13px;margin:6px 0}.dcgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:2px 14px;margin:8px 0 14px;padding:12px;border:1px solid var(--line);border-radius:8px}
 .dcnames{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px}
 #adminModal hr{border:0;border-top:1px solid var(--line);margin:24px 0}
-.topbanner{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#eef7f7;border:1px solid #9fd1d3;color:#13343b;padding:12px 16px;border-radius:9px;z-index:40;display:flex;gap:12px;align-items:center;max-width:min(900px,94vw);box-shadow:0 8px 30px #0003;font-size:13px}.topbanner.bad{background:#fff0f0;border-color:#e8b4b4;color:#8b2a2a;top:14px;bottom:auto}.topbanner[hidden]{display:none}</style></head><body><div id="fatal" hidden></div><div id="syncBanner" class="topbanner bad" hidden></div><div id="migrateBanner" class="topbanner" hidden></div>
+.topbanner{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#eef7f7;border:1px solid #9fd1d3;color:#13343b;padding:12px 16px;border-radius:9px;z-index:40;display:flex;gap:12px;align-items:center;max-width:min(900px,94vw);box-shadow:0 8px 30px #0003;font-size:13px}.topbanner.bad{background:#fff0f0;border-color:#e8b4b4;color:#8b2a2a;top:14px;bottom:auto}.topbanner[hidden]{display:none}</style><style id="tracker-sidebar-scroll">/* Keep all navigation sections reachable on short or zoomed laptop displays. */
+@media (min-width:651px){
+  aside{height:100vh;max-height:100dvh;overflow:hidden;min-height:0}
+  aside .brand,aside .foot{flex-shrink:0}
+  aside .nav{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-gutter:stable;scrollbar-width:thin;scrollbar-color:#8ba8ba transparent;margin-bottom:14px;padding-right:4px}
+  aside .foot{margin-top:0}
+  aside .nav:focus-visible{outline:2px solid #8ba8ba;outline-offset:3px}
+}
+</style>
+<style id="tracker-table-width">/* Bound wide tables to their panel and keep allocation actions reachable. */
+main,#content,#content>.panel{min-width:0}
+.tablewrap{min-width:0;max-width:100%}
+.showroom-orders{table-layout:fixed;min-width:1180px;width:100%;white-space:normal}
+.showroom-orders th,.showroom-orders td{padding:10px 8px;vertical-align:top;overflow-wrap:anywhere}
+.showroom-orders th{overflow-wrap:normal;white-space:normal;position:sticky;top:0;z-index:3}
+.showroom-orders td:nth-child(2),.showroom-orders td:nth-child(4),.showroom-orders td:nth-child(7){white-space:nowrap}
+#showroomOrderWrap{max-height:65vh;overscroll-behavior-x:contain;overscroll-behavior-y:auto}
+.showroom-orders td:first-child,.showroom-orders th:first-child{position:sticky;left:0;background:white;z-index:2;box-shadow:3px 0 6px #132b4210}
+.showroom-orders td:last-child,.showroom-orders th:last-child{position:sticky;right:0;background:white;z-index:2;box-shadow:-4px 0 8px #132b4218}
+.showroom-orders th:first-child,.showroom-orders th:last-child{z-index:5;background:#f8fafb}
+.showroom-orders tr:hover td:first-child,.showroom-orders tr:hover td:last-child{background:#f2f9f9}
+.showroom-orders td:last-child .btn{display:block;width:100%;margin:0 0 5px;padding:8px 5px;white-space:normal}
+.showroom-orders td[colspan]{position:static;box-shadow:none}
+.table-scroll-tools{display:flex;align-items:center;gap:8px;margin-top:10px}
+.table-scroll-tools[hidden],.table-top-scroll[hidden]{display:none}
+.table-scroll-tools .btn{padding:4px 12px;min-height:30px}
+.table-top-scroll{height:20px;overflow-x:scroll;overflow-y:hidden;max-width:100%;border:1px solid #dce5eb;border-radius:4px;margin:4px 0 7px;scrollbar-color:#6c8795 #edf2f5}
+.table-top-scroll>div{height:1px}
+@media(max-width:650px){.showroom-orders td:first-child,.showroom-orders th:first-child{position:static;box-shadow:none}}
+
+.showroom-dialog-summary{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px}
+.showroom-dialog-summary>p{margin:0;flex:1;min-width:0;overflow-wrap:anywhere}
+.btn.emergency-small{flex-shrink:0;background:#bc4545;border-color:#bc4545;color:white;font-size:12px;line-height:1.3;padding:6px 10px;min-height:30px;width:auto}
+.btn.emergency-small:hover{background:#a33838;border-color:#a33838}
+.btn.emergency-small:focus-visible{outline:2px solid #bc4545;outline-offset:3px}
+</style>
+</head><body><div id="fatal" hidden></div><div id="syncBanner" class="topbanner bad" hidden></div><div id="migrateBanner" class="topbanner" hidden></div>
 <div id="loginScreen" hidden><div class="loginbox"><div class="brand">JAZEERA<small>ORDER OPERATIONS</small></div><form id="loginForm"><div class="field"><label for="loginId">Email or username</label><input id="loginId" autocomplete="username" required></div><div class="field"><label for="loginPw">Password</label><input id="loginPw" type="password" autocomplete="current-password" required></div><div id="loginError" role="alert"></div><button class="btn primary" id="loginBtn" type="submit">Sign in</button></form></div></div>
 <div id="loadingScreen"><div class="loadingbox"><div class="brand">JAZEERA<small>ORDER OPERATIONS</small></div><div class="spinner"></div><div id="loadingText">Checking your access…</div></div></div>
 <div id="appShell" hidden><aside><div class="brand">JAZEERA<small>ORDER OPERATIONS</small></div><nav class="nav" id="nav"></nav><div class="foot">FULFILMENT WORKSPACE<br>Sales orders & showroom STOs<br><br>Source snapshot · 22 Nov 2026</div></aside><main><header><div><div class="eyebrow">Operations control centre</div><h1 id="title">Overview</h1><div id="subtitle" class="sub"></div></div><div class="session"><span id="syncState" class="sync ok">All changes saved</span><span id="whoami" class="sub"></span><button class="btn" id="refreshData" title="Load everyone's latest changes">↻ Refresh</button><button class="btn" id="signOut">Sign out</button><select id="role" hidden><option value="manager">manager</option><option value="dc">dc</option><option value="planning">planning</option><option value="sales">sales</option></select><select id="assigned" hidden aria-label="Assigned DC"></select></div></header><div class="notice">Signed-in workspace · You see the distribution centres assigned to your account. Order updates and imports are shared with everyone who has access to the same DC.</div><div id="storageRecovery" class="notice" role="alert" hidden></div><div id="content"></div></main><dialog id="detail"></dialog><dialog id="importModal"></dialog><dialog id="bulkModal"></dialog><dialog id="adminModal"></dialog><div id="toast" class="toast" hidden></div></div>
@@ -1243,7 +1279,13 @@ gsStartWorkspace().then(()=>{try{if(Sync.getState&&syncDiff().length)cloudPersis
   function statsFor(list){const pools=new Map();for(const r of list)pools.set(JSON.stringify([r.dc,r.sku,r.unit]),r);const group=[...pools.values()],orders=a=>new Set(a.map(r=>r.order)).size,sum=(a,k)=>a.reduce((n,r)=>n+Number(r[k]||0),0),full=list.filter(r=>r.pool_free>=r.shortfall),part=list.filter(r=>r.pool_free<r.shortfall),comp=list.filter(r=>r.competing);return{regions:[...new Set(list.map(r=>r.dc))].map(dc=>{const lines=list.filter(r=>r.dc===dc);return{dc,orders:orders(lines),lines:lines.length,quantities:[...new Set(lines.map(r=>r.unit))].map(unit=>({unit,qty:sum(lines.filter(r=>r.unit===unit),'shortfall'),supply:group.filter(r=>r.dc===dc&&r.unit===unit).reduce((n,r)=>n+Math.min(r.pool_free,sum(lines.filter(x=>x.sku===r.sku&&x.unit===unit),'shortfall')),0)}))}}).sort((a,b)=>b.orders-a.orders||a.dc.localeCompare(b.dc)),pools:group.map(r=>({dc:r.dc,sku:r.sku,unit:r.unit,free:r.pool_free,demand:r.pool_demand,needed:list.filter(x=>x.dc===r.dc&&x.sku===r.sku&&x.unit===r.unit).reduce((n,x)=>n+x.shortfall,0),gap:Math.max(0,list.filter(x=>x.dc===r.dc&&x.sku===r.sku&&x.unit===r.unit).reduce((n,x)=>n+x.shortfall,0)-r.pool_free)})),orders:orders(list),lines:list.length,demandQty:sum(list,'shortfall'),coverableOrders:orders(full),coverableLines:full.length,coverableQty:sum(full,'shortfall'),partialOrders:orders(part),partialLines:part.length,partialQty:sum(part,'shortfall'),competingOrders:orders(comp),competingLines:comp.length,competingQty:sum(comp,'shortfall'),poolQty:sum(group,'pool_free'),poolDemand:sum(group,'pool_demand'),poolGap:group.reduce((n,r)=>n+Math.max(0,r.pool_demand-r.pool_free),0),units:[...new Set(group.map(r=>r.unit))].map(unit=>({unit}))}}
   async function rpc(action,p={}){if(!allowed())throw Error('Sales Fulfilment access required.');if(action==='map')return{showrooms,dcs:[...dcs]};if(action==='start'){const captured=new Date(p.captured).toISOString();if(captured>new Date().toISOString()||!p.unitVerified)throw Error('Confirm the report time and units.');const id=crypto.randomUUID();drafts.set(id,{id,captured,filename:p.filename,count:p.count,rows:[],excluded:p.excluded,missingShowrooms:p.missingShowrooms,negativeRows:p.negativeRows,actor:actor()});return{id}}if(action==='chunk'){const draft=drafts.get(p.id);if(!draft)throw Error('Upload session expired.');draft.rows.push(...p.rows);return{accepted:p.rows.length}}
    const execute=(state,action,p)=>{if(action==='reserve_many'){if(!Array.isArray(p.selections)||!p.selections.length||p.selections.length>236||new Set(p.selections.map(s=>s.store)).size!==p.selections.length||new Set(p.selections.map(s=>s.request_id)).size!==p.selections.length)throw Error('Select each showroom once.');return p.selections.map(s=>execute(state,'reserve',{...p,...s}))}if(action==='publish'){const draft=drafts.get(p.id);if(!draft||draft.rows.length!==draft.count||state.snapshot&&draft.captured<=state.snapshot.captured)throw Error('Upload a complete newer stock report.');const{rows,...snapshot}=draft;state.snapshot=snapshot;state.stock=rows;return snapshot}if(action==='holds')return state.holds.filter(h=>applicable(h,state)).slice().reverse();if(action==='history')return state.holds.filter(h=>(!p.dc||h.dc===p.dc)&&(!p.beforeCreated||h.created<p.beforeCreated||h.created===p.beforeCreated&&h.id<p.beforeId)).sort((a,b)=>b.created.localeCompare(a.created)||b.id.localeCompare(a.id)).slice(0,101);if(action==='close'){if(p.state==='released'&&Object.hasOwn(p,'release_reason')){const reasons={no_actual_stock:'No actual stock',showroom_invoice_1_day:'Needed for showroom invoicing within 1 day',area_manager_rejected:'Rejected by area manager',other:'Other'},label=reasons[p.release_reason],note=String(p.release_note||'').trim();if(!label||note.length>120||p.release_reason==='other'&&!note)throw Error('Choose a release reason and explain Other (up to 120 characters)');p={...p,reference:label+(note?': '+note:'')}}const hold=state.holds.find(h=>h.id===p.id&&h.state==='held');if(!hold||!['posted','released'].includes(p.state)||!p.reference?.trim())throw Error('Enter a valid SAP reference or release reason for an active hold.');Object.assign(hold,{state:p.state,reference:p.reference.trim(),closed:new Date().toISOString(),closed_by:actor(),release_reason:p.state==='released'?p.release_reason:null,release_note:p.state==='released'?String(p.release_note||'').trim()||null:null});return hold}
-    const stock=new Map(state.stock.map(s=>[keyFor(s.store,s.sku),s])),queue=availableOrders(state,stock,p.emergency===true||action==='emergency_lookup');if(action==='emergency_lookup'){if(!state.snapshot)throw Error('Upload a nationwide stock report first');if(!String(p.order||'').trim())throw Error('Enter the urgent order number');return{rows:queue.filter(r=>r.order===String(p.order).trim()),snapshot:state.snapshot?.id}}if(action==='read'){const filtered=queue.filter(r=>(!p.productGroup||r.productGroup===p.productGroup)&&(!p.channel||String(r.channel).trim().toLowerCase()===p.channel.toLowerCase()||p.channel==='Wholesale'&&String(r.channel).trim().toLowerCase()==='wholesalers')&&(!p.dc||r.dc===p.dc)&&(!p.query||[r.order,r.sku].includes(p.query)));return{snapshot:state.snapshot,rows:filtered.filter(r=>(p.card==='coverable'?r.pool_free>=r.shortfall:p.card==='partial'?r.pool_free<r.shortfall:p.card==='competing'?r.competing:true)&&r.order_id>(p.after||'')).slice(0,101),stats:statsFor(filtered)}}
+    const stock=new Map(state.stock.map(s=>[keyFor(s.store,s.sku),s])),queue=availableOrders(state,stock,p.emergency===true||action==='emergency_lookup');if(action==='emergency_lookup'){if(!state.snapshot)throw Error('Upload a nationwide stock report first');if(!String(p.order||'').trim())throw Error('Enter the urgent order number');return{rows:queue.filter(r=>r.order===String(p.order).trim()),snapshot:state.snapshot?.id}}if(action==='other_dcs'){
+      if(!state.snapshot||state.snapshot.id!==p.snapshot)throw Error('Stock snapshot changed. Refresh the screen.');
+      const r=rows.find(r=>r.id===p.order_id&&!terminal(r)&&!r.completedDate&&!r.cancelledDate&&r.type==='SO'&&/^(agents|projects|real estate|wholesale|wholesalers)$/i.test(String(r.channel).trim()));
+      if(!r||Number(r.remaining)<=0)throw Error('This order line is not eligible for a stock check.');
+      const unit=canonical(r.unit||r.uom||stock.get(keyFor(r.dc,r.item))?.unit||'');
+      return{order:r.order,line:r.line,dc:r.dc,sku:r.item,description:r.description,unit,snapshot:state.snapshot.id,captured:state.snapshot.captured,filename:state.snapshot.filename,rows:dcs.filter(dc=>dc!==r.dc).map(dc=>{const s=stock.get(keyFor(dc,r.item));return{dc,region:[...new Set(showrooms.filter(m=>m.dc===dc).map(m=>m.region))].join(' / '),qty:s?s.qty:null,unit:s?.unit||null,unit_match:s&&unit?canonical(s.unit)===unit:null}}).sort((a,b)=>(a.qty===null)-(b.qty===null)||(b.qty||0)-(a.qty||0)||a.dc.localeCompare(b.dc))};
+    }if(action==='read'){const filtered=queue.filter(r=>(!p.productGroup||r.productGroup===p.productGroup)&&(!p.channel||String(r.channel).trim().toLowerCase()===p.channel.toLowerCase()||p.channel==='Wholesale'&&String(r.channel).trim().toLowerCase()==='wholesalers')&&(!p.dc||r.dc===p.dc)&&(!p.query||[r.order,r.sku].includes(p.query)));return{snapshot:state.snapshot,rows:filtered.filter(r=>(p.card==='coverable'?r.pool_free>=r.shortfall:p.card==='partial'?r.pool_free<r.shortfall:p.card==='competing'?r.competing:true)&&r.order_id>(p.after||'')).slice(0,101),stats:statsFor(filtered)}}
     const existing=state.holds.find(h=>h.id===p.request_id);if(action==='reserve'&&existing){if(existing.order_id!==p.order_id||existing.store!==p.store||existing.qty!==Number(p.qty)||existing.snapshot_id!==p.snapshot||existing.unit!==p.unit||!!existing.emergency!==!!p.emergency)throw Error('Request ID already used.');return existing}if(!state.snapshot||state.snapshot.id!==p.snapshot)throw Error('Stock snapshot changed. Refresh the screen.');const line=queue.find(r=>r.order_id===p.order_id);if(!line)throw Error('This order line has no eligible showroom supply.');const options=optionsFor(line,state,stock,p.emergency===true);if(action==='options')return{emergency:p.emergency===true,options,shortfall:line.shortfall,version:line.order_version,pool_free:line.pool_free,pool_demand:line.pool_demand,pool_orders:line.pool_orders,pool_lines:line.pool_lines,competing:line.competing,competitors:queue.filter(r=>r.dc===line.dc&&r.sku===line.sku&&r.unit===line.unit)};
     const option=options.find(o=>o.code===p.store&&o.unit===p.unit),qty=Number(p.qty);if(action!=='reserve'||p.version!==line.order_version||!option||!Number.isFinite(qty)||qty<=0||qty>option.free||qty>line.shortfall)throw Error('Order or stock availability changed. Review the allocation again.');const hold={id:p.request_id,order_id:line.order_id,order:line.order,line:line.line,dc:line.dc,sku:line.sku,store:option.code,name:option.name,qty,state:'held',created:new Date().toISOString(),actor:actor(),unit:option.unit,remaining_at_hold:Number(line.remaining),snapshot_id:state.snapshot.id,emergency:p.emergency===true,source_dc:option.source_dc};state.holds.push(hold);return hold;
    };return transaction(['publish','reserve','reserve_many','close'].includes(action),state=>execute(state,action,p));
@@ -1337,8 +1379,41 @@ gsStartWorkspace().then(()=>{try{if(Sync.getState&&syncDiff().length)cloudPersis
   }
 
   function emergencyLookup(){
-    modalShell('Emergency allocation · nationwide stock',`<form id="showroomEmergencyForm"><p>Find an urgent B2B sales order, including lines with no supply in their own region.</p><label for="showroomUrgentOrder">Order number</label><input id="showroomUrgentOrder" required><button class="btn" type="submit">Find urgent order</button><p id="showroomUrgentStatus" role="status"></p></form><div id="showroomUrgentLines"></div>`);
-    $('showroomEmergencyForm').onsubmit=async event=>{event.preventDefault();const button=event.currentTarget.querySelector('button');button.disabled=true;try{const found=await rpc('emergency_lookup',{order:$('showroomUrgentOrder').value.trim()});if(!allowed()||view!==pageId||!$('showroomUrgentLines'))return;$('showroomUrgentLines').innerHTML=found.rows.map((r,i)=>`<p>${esc(r.order)} / ${esc(r.line)} · ${esc(r.dc)} · ${esc(r.sku)} · ${esc(r.description||'')} · Shortfall ${format(r.shortfall)} <button class="btn" type="button" data-urgent-line="${i}">View nationwide stock</button></p>`).join('')||'<p>No open B2B shortage lines found for this order.</p>';$('showroomUrgentLines').querySelectorAll('[data-urgent-line]').forEach(b=>b.onclick=()=>choose(found.rows[b.dataset.urgentLine],found.snapshot,true));$('showroomUrgentStatus').textContent='';}catch(error){if($('showroomUrgentStatus'))$('showroomUrgentStatus').textContent=error.message;}finally{button.disabled=false;}};
+    modalShell('Find order for stock checks',`<form id="showroomEmergencyForm"><p>Find a B2B sales order to check DC or showroom stock, including orders with no local showroom supply.</p><label for="showroomUrgentOrder">Order number</label><input id="showroomUrgentOrder" required><button class="btn" type="submit">Find order</button><p id="showroomUrgentStatus" role="status"></p></form><div id="showroomUrgentLines"></div>`);
+    $('showroomEmergencyForm').onsubmit=async event=>{event.preventDefault();const button=event.currentTarget.querySelector('button');button.disabled=true;try{const found=await rpc('emergency_lookup',{order:$('showroomUrgentOrder').value.trim()});if(!allowed()||view!==pageId||!$('showroomUrgentLines'))return;$('showroomUrgentLines').innerHTML=found.rows.map((r,i)=>`<p>${esc(r.order)} / ${esc(r.line)} · ${esc(r.dc)} · ${esc(r.sku)} · ${esc(r.description||'')} · Shortfall ${format(r.shortfall)} <button class="btn" type="button" data-urgent-line="${i}">Showroom stock</button> <button class="btn" type="button" data-urgent-dcs="${i}">Check other DCs</button></p>`).join('')||'<p>No open B2B shortage lines found for this order.</p>';$('showroomUrgentLines').querySelectorAll('[data-urgent-line]').forEach(b=>b.onclick=()=>choose(found.rows[b.dataset.urgentLine],found.snapshot,false));$('showroomUrgentLines').querySelectorAll('[data-urgent-dcs]').forEach(b=>b.onclick=()=>checkOtherDcs(found.rows[b.dataset.urgentDcs],found.snapshot));$('showroomUrgentStatus').textContent='';}catch(error){if($('showroomUrgentStatus'))$('showroomUrgentStatus').textContent=error.message;}finally{button.disabled=false;}};
+  }
+
+  let allocationTableObserver=null;
+  function mountAllocationScrollers(){
+    allocationTableObserver?.disconnect();
+    allocationTableObserver=new ResizeObserver(()=>updates.forEach(update=>update()));
+    const updates=[];
+    $('content').querySelectorAll('.tablewrap').forEach((wrap,index)=>{
+      const table=wrap.querySelector('table');if(!table)return;
+      const tools=document.createElement('div');tools.className='table-scroll-tools';
+      const label=document.createElement('span');label.className='sub';label.textContent='More columns: scroll sideways';
+      const left=document.createElement('button'),right=document.createElement('button');
+      for(const [button,text,direction] of [[left,'←',-1],[right,'→',1]]){button.type='button';button.className='btn';button.textContent=text;button.setAttribute('aria-label',direction<0?'Scroll table left':'Scroll table right');button.onclick=()=>wrap.scrollBy({left:direction*Math.max(180,wrap.clientWidth*.65),behavior:'smooth'});}
+      tools.append(label,left,right);
+      const top=document.createElement('div'),inner=document.createElement('div');top.className='table-top-scroll';top.tabIndex=0;top.setAttribute('role','region');top.setAttribute('aria-label','Horizontal table scroll '+(index+1));top.append(inner);
+      wrap.before(tools,top);
+      top.addEventListener('scroll',()=>{if(Math.abs(wrap.scrollLeft-top.scrollLeft)>1)wrap.scrollLeft=top.scrollLeft});
+      wrap.addEventListener('scroll',()=>{if(Math.abs(top.scrollLeft-wrap.scrollLeft)>1)top.scrollLeft=wrap.scrollLeft});
+      const update=()=>{if(!wrap.isConnected)return;const overflow=wrap.scrollWidth>wrap.clientWidth+1;tools.hidden=top.hidden=!overflow;inner.style.width=wrap.scrollWidth+'px';top.scrollLeft=wrap.scrollLeft;left.disabled=wrap.scrollLeft<=1;right.disabled=wrap.scrollLeft>=wrap.scrollWidth-wrap.clientWidth-1;};
+      wrap.addEventListener('scroll',update);updates.push(update);update();allocationTableObserver.observe(wrap);
+    });
+  }
+
+  async function checkOtherDcs(row,snapshot){
+    try{
+      const data=await rpc('other_dcs',{order_id:row.order_id,snapshot});
+      if(!allowed()||view!==pageId)return;
+      modalShell('Check other DCs',`<p>${esc(data.order)} / ${esc(data.line)} · Assigned DC ${esc(data.dc)} · SKU ${esc(data.sku)}<br>${esc(data.description||'')}</p><p class="sub">Stock report: ${esc(data.filename||'')} · ${esc(time(data.captured))} KSA. Reported warehouse stock only; this check does not reserve stock or arrange a transfer.</p><div class="tablewrap"><table><thead><tr><th>DC</th><th>Region</th><th>Reported available</th><th>Unit</th><th>Unit check</th></tr></thead><tbody>${data.rows.map(r=>`<tr><td>${esc(r.dc)}</td><td>${esc(r.region||'')}</td><td>${r.qty===null?'Not reported':format(r.qty)}</td><td>${esc(r.unit||'—')}</td><td>${r.qty===null?'—':r.unit_match===true?'Matches order':r.unit_match===false?'Different unit':'Order unit not confirmed'}</td></tr>`).join('')||'<tr><td colspan="5">No other DCs in the current stock scope.</td></tr>'}</tbody></table></div>`);
+    }catch(error){notify(error.message);}
+  }
+  function showroomEmergencyGateway(row,snapshot){
+    modalShell('Showroom stock',`<div class="showroom-dialog-summary"><p>${esc(row.order)} / ${esc(row.line)} · ${esc(row.dc)} · SKU ${esc(row.sku)}</p><button class="btn emergency-small" type="button" id="showroomEmergencyInside" title="Search nationwide showroom stock">Emergency</button></div><p>No eligible same-region showroom supply is currently available. Use Emergency to search nationwide.</p>`);
+    $('showroomEmergencyInside').onclick=()=>choose(row,snapshot,true);
   }
 
   async function choose(row, snapshot, emergency=false) {
@@ -1346,13 +1421,14 @@ gsStartWorkspace().then(()=>{try{if(Sync.getState&&syncDiff().length)cloudPersis
       const proposal = await rpc('options',{order_id:row.order_id,snapshot,emergency});
       if (!allowed() || view !== pageId) return;
       if (!proposal.options.length) {
+        if(!emergency){showroomEmergencyGateway(row,snapshot);return;}
         modalShell('No eligible showroom stock', `<p>${esc(row.order)} / ${esc(row.line)} · ${esc(row.dc)} · SKU ${esc(row.sku)}</p><p>Shortfall: ${format(proposal.shortfall)}.</p>`);
         return;
       }
       proposal.options.sort((a,b)=>(emergency?Number(b.source_dc===row.dc)-Number(a.source_dc===row.dc):0)||Number(b.free)-Number(a.free)||String(a.code).localeCompare(String(b.code)));
       modalShell(emergency?'Emergency allocation · nationwide stock':'Confirm showroom allocation', `
         <form id="showroomHoldForm">
-          <p>${esc(row.order)} / ${esc(row.line)} · ${esc(row.dc)} · SKU ${esc(row.sku)} · Shortfall ${format(proposal.shortfall)}</p>${proposal.competing?`<div class="notice"><strong>Competing orders: ${format(proposal.pool_orders)} orders / ${format(proposal.pool_lines)} lines</strong><p>Shared demand ${format(proposal.pool_demand)}; showroom supply ${format(proposal.pool_free)}; uncovered ${format(Math.max(0,proposal.pool_demand-proposal.pool_free))}. Holding stock for this line reduces availability for the others.</p><div>${(proposal.competitors||[]).map(c=>esc(c.order)+' / '+esc(c.line)+': '+format(c.shortfall)).join(' · ')}</div></div>`:''}
+          <div class="showroom-dialog-summary"><p>${esc(row.order)} / ${esc(row.line)} · ${esc(row.dc)} · SKU ${esc(row.sku)} · Shortfall ${format(proposal.shortfall)}</p>${!emergency?'<button class="btn emergency-small" type="button" id="showroomEmergencyInside" title="Search nationwide showroom stock">Emergency</button>':''}</div>${proposal.competing?`<div class="notice"><strong>Competing orders: ${format(proposal.pool_orders)} orders / ${format(proposal.pool_lines)} lines</strong><p>Shared demand ${format(proposal.pool_demand)}; showroom supply ${format(proposal.pool_free)}; uncovered ${format(Math.max(0,proposal.pool_demand-proposal.pool_free))}. Holding stock for this line reduces availability for the others.</p><div>${(proposal.competitors||[]).map(c=>esc(c.order)+' / '+esc(c.line)+': '+format(c.shortfall)).join(' · ')}</div></div>`:''}
           <p>${emergency?'Emergency: nationwide stock is shown. Your assigned DC territory is listed first. Confirmed holds are shared across all regions. ' : ''}Select one or more showrooms and enter the quantity to release from each.</p>
           <div class="tablewrap"><table><thead><tr><th><label><input type="checkbox" id="showroomSelectAll"> Select all</label></th><th>${emergency?'Showroom · same region first, then highest stock':'Eligible showroom · highest stock first'}</th><th>Available</th><th>Quantity to hold</th></tr></thead><tbody>
           ${proposal.options.map((o,i)=>`<tr ${!emergency&&i>=5?'class="showroomMore" hidden':''}><td><input type="checkbox" data-showroom-select="${i}" aria-label="Select ${esc(o.code)}" ${i===0?'checked':''}></td><td>${esc(o.code)} · ${esc(o.name)}${emergency?`<small>${esc(o.region||'')} · ${esc(o.source_dc||'')}${o.source_dc===row.dc?' · Same region':' · Other region'}</small>`:''}</td><td>${format(o.free)} ${esc(o.unit)}</td><td><input type="number" data-showroom-qty="${i}" aria-label="Quantity from ${esc(o.code)}" min="0" max="${o.free}" step="any" value="${i===0?Math.min(o.free,proposal.shortfall):0}" ${i===0?'':'disabled'}></td></tr>`).join('')}
@@ -1362,6 +1438,7 @@ gsStartWorkspace().then(()=>{try{if(Sync.getState&&syncDiff().length)cloudPersis
           <p id="showroomTotal" aria-live="polite"></p>
           <p id="showroomHoldStatus" role="status"></p><button class="btn" id="showroomPlanExport" type="button">Export allocation plan Excel</button> <button class="btn" type="submit">Confirm selected holds</button>
         </form>`);
+      if($('showroomEmergencyInside'))$('showroomEmergencyInside').onclick=()=>choose(row,snapshot,true);
       const form=$('showroomHoldForm'), submit=form.querySelector('[type="submit"]');
       let selections=null;
       const quantities=[...form.querySelectorAll('[data-showroom-qty]')];
@@ -1386,7 +1463,7 @@ gsStartWorkspace().then(()=>{try{if(Sync.getState&&syncDiff().length)cloudPersis
         }catch(error){$('showroomHoldStatus').textContent=error.message;}
         finally{if($('showroomPlanExport'))$('showroomPlanExport').disabled=false;selectAll.disabled=false;checks.forEach(c=>c.disabled=false);quantities.forEach((q,i)=>q.disabled=!checks[i].checked);submit.disabled=total()<=0||total()>proposal.shortfall;}
       };
-    } catch(error) { notify(error.message); }
+    } catch(error) { if(!emergency&&/eligible.*(shortage|supply)|no.*showroom/i.test(error.message))showroomEmergencyGateway(row,snapshot);else notify(error.message); }
   }
 
   function exportAllocationPlan(row,proposal,snapshot,emergency,checks,quantities){
@@ -1496,18 +1573,18 @@ gsStartWorkspace().then(()=>{try{if(Sync.getState&&syncDiff().length)cloudPersis
       const drafts = $('showroomFilters') ? {query:$('showroomQuery').value,dc:$('showroomDc').value,channel:$('showroomChannel').value,productGroup:$('showroomProductGroup').value} : null;
       const visible = data.rows.slice(0,100);
       $('content').innerHTML = `<section class="panel">
-        <h2>Nationwide showroom allocation</h2><p class="notice"><strong>Shared workspace.</strong> The stock snapshot and all holds are saved centrally. Every Sales Fulfilment user sees the same holds, and the database blocks reserving stock that is no longer free.</p><p class="sub">Sales Fulfilment · All regions and all eligible B2B orders. Normal allocation uses showrooms mapped to the order line’s assigned DC. Use Emergency allocation to source nationwide for an urgent order. DC Available stock is applied to oldest open demand, including STOs, before showroom stock is proposed. Planning Overall Status does not close a DC order.</p><p>${data.snapshot ? 'Stock snapshot ' + esc(time(data.snapshot.captured)) + ' KSA · ' + esc(data.snapshot.filename) : 'Upload the nationwide stock export to calculate shortages.'}</p>${data.snapshot&&data.snapshot.unitVerified===false?'<p class="notice">This older snapshot has no unit verification. Upload the current report and confirm its units before allocating.</p>':''}${data.snapshot?`<details><summary>Snapshot scope and exclusions</summary><p>Confirmed by: ${esc(data.snapshot.actor||'Not recorded')}<br>Excluded codes: ${esc((data.snapshot.excluded||[]).join(', ')||'None')}<br>Owned showrooms absent: ${esc((data.snapshot.missingShowrooms||[]).join(', ')||'None')}<br>Negative rows treated as zero: ${format(data.snapshot.negativeRows||0)}</p></details>`:''}
+        <h2>Nationwide showroom allocation</h2><p class="sub">Sales Fulfilment · All regions and all eligible B2B orders. Normal allocation uses showrooms mapped to the order line’s assigned DC. Use Check other DCs for warehouse stock, or Emergency inside showroom selection to search nationwide showrooms. DC Available stock is applied to oldest open demand, including STOs, before showroom stock is proposed. Planning Overall Status does not close a DC order.</p><p>${data.snapshot ? 'Stock snapshot ' + esc(time(data.snapshot.captured)) + ' KSA · ' + esc(data.snapshot.filename) : 'Upload the nationwide stock export to calculate shortages.'}</p>${data.snapshot&&data.snapshot.unitVerified===false?'<p class="notice">This older snapshot has no unit verification. Upload the current report and confirm its units before allocating.</p>':''}${data.snapshot?`<details><summary>Snapshot scope and exclusions</summary><p>Confirmed by: ${esc(data.snapshot.actor||'Not recorded')}<br>Excluded codes: ${esc((data.snapshot.excluded||[]).join(', ')||'None')}<br>Owned showrooms absent: ${esc((data.snapshot.missingShowrooms||[]).join(', ')||'None')}<br>Negative rows treated as zero: ${format(data.snapshot.negativeRows||0)}</p></details>`:''}
         <form id="showroomFilters" class="toolbar">
           <label>Assigned DC <select id="showroomDc"><option value="">All DCs</option>${map.dcs.sort().map(code=>`<option ${code===dc?'selected':''}>${esc(code)}</option>`).join('')}</select></label>
           <label>Product type <select id="showroomProductGroup"><option value="">All product types</option><option value="fg" ${productGroup==='fg'?'selected':''}>Finished Goods</option><option value="tools" ${productGroup==='tools'?'selected':''}>Tools</option></select></label>
           <label>Order channel <select id="showroomChannel"><option value="">All channels</option>${['Agents','Projects','Real Estate','Wholesale'].map(c=>`<option ${c===channel?'selected':''}>${c}</option>`).join('')}</select></label>
           <label>Order or SKU <input id="showroomQuery" value="${esc(query)}"></label>
-          <button class="btn" type="submit">Apply filters</button><button class="btn" id="showroomClearFilters" type="button">Clear filters</button><button class="btn" id="showroomEmergency" type="button">Emergency allocation</button><button class="btn" id="showroomUpload" type="button">Upload stock</button><button class="btn" id="showroomRefresh" type="button">Refresh preview availability</button>
+          <button class="btn" type="submit">Apply filters</button><button class="btn" id="showroomClearFilters" type="button">Clear filters</button><button class="btn" id="showroomEmergency" type="button">Find order</button><button class="btn" id="showroomUpload" type="button">Upload stock</button><button class="btn" id="showroomRefresh" type="button">Refresh shared availability</button>
         </form>
         <p id="showroomSyncStatus" class="sub" aria-live="polite">Availability checked ${esc(time(new Date().toISOString()))} KSA</p>
         ${regionalChart(data.stats,map)}${cards(data.stats)}<h2>Eligible B2B order shortages</h2>
-        <div class="tablewrap"><table><thead><tr><th>Order / line</th><th>Order date</th><th>Channel</th><th>DC</th><th>Customer</th><th>SKU</th><th>Open qty</th><th>Shortfall</th><th>Shared stock / competing demand</th><th>Showroom stock</th></tr></thead>
-        <tbody>${visible.map((r,i)=>`<tr><td>${esc(r.order)} / ${esc(r.line)}</td><td>${esc(r.created||'Not supplied')}</td><td>${esc(r.channel||'Not supplied')}</td><td>${esc(r.dc)}</td><td>${esc(r.customer)}</td><td>${esc(r.sku)}<br>${esc(r.description)}</td><td>${format(r.remaining)}</td><td>${format(r.shortfall)} ${esc(r.unit||'')}</td><td>${r.competing?`<span class="badge warning">${format(r.pool_orders)} orders competing</span><small>${format(r.pool_demand)} required / ${format(r.pool_free)} shared</small><small>Gap ${format(Math.max(0,r.pool_demand-r.pool_free))}</small>`:`${format(r.pool_free)} releasable ${esc(r.unit||'')}<small>${r.pool_free>=r.shortfall?'Individually coverable':'Partial supply only'}</small>`}</td><td><button class="btn" data-showroom-row="${i}">Find stock</button> <button class="btn" data-emergency-row="${i}">Emergency</button></td></tr>`).join('') || '<tr><td colspan="10">No open B2B shortages have releasable showroom stock in this view.</td></tr>'}</tbody></table></div>
+        <div class="tablewrap" id="showroomOrderWrap"><table class="showroom-orders"><colgroup><col style="width:120px"><col style="width:95px"><col style="width:85px"><col style="width:65px"><col style="width:150px"><col style="width:190px"><col style="width:70px"><col style="width:80px"><col style="width:175px"><col style="width:150px"></colgroup><thead><tr><th>Order / line</th><th>Order date</th><th>Channel</th><th>DC</th><th>Customer</th><th>SKU</th><th>Open qty</th><th>Shortfall</th><th>Shared stock / competing demand</th><th>Showroom stock</th></tr></thead>
+        <tbody>${visible.map((r,i)=>`<tr><td>${esc(r.order)} / ${esc(r.line)}</td><td>${esc(r.created||'Not supplied')}</td><td>${esc(r.channel||'Not supplied')}</td><td>${esc(r.dc)}</td><td>${esc(r.customer)}</td><td>${esc(r.sku)}<br>${esc(r.description)}</td><td>${format(r.remaining)}</td><td>${format(r.shortfall)} ${esc(r.unit||'')}</td><td>${r.competing?`<span class="badge warning">${format(r.pool_orders)} orders competing</span><small>${format(r.pool_demand)} required / ${format(r.pool_free)} shared</small><small>Gap ${format(Math.max(0,r.pool_demand-r.pool_free))}</small>`:`${format(r.pool_free)} releasable ${esc(r.unit||'')}<small>${r.pool_free>=r.shortfall?'Individually coverable':'Partial supply only'}</small>`}</td><td><button class="btn" data-showroom-row="${i}">Find stock</button> <button class="btn" data-other-dcs="${i}">Check other DCs</button></td></tr>`).join('') || '<tr><td colspan="10">No open B2B shortages have releasable showroom stock in this view.</td></tr>'}</tbody></table></div>
         ${previous.length ? '<button class="btn" id="showroomPrev">Previous</button>' : ''}
         ${data.rows.length>100 ? '<button class="btn" id="showroomNext">Next</button>' : ''}
       </section><section class="panel">
@@ -1540,6 +1617,7 @@ gsStartWorkspace().then(()=>{try{if(Sync.getState&&syncDiff().length)cloudPersis
       if (drafts) { $('showroomQuery').value=drafts.query; $('showroomDc').value=drafts.dc; $('showroomChannel').value=drafts.channel; $('showroomProductGroup').value=drafts.productGroup; }
       [...$('content').querySelectorAll('.tablewrap')].forEach((t,i)=>{if(scroll.tables[i]){t.scrollLeft=scroll.tables[i][0];t.scrollTop=scroll.tables[i][1];}});
       window.scrollTo(scroll.x,scroll.y);
+      mountAllocationScrollers();
       $('showroomHistoryPrev')&&($('showroomHistoryPrev').onclick=()=>{historyBefore=historyPrevious.pop();refresh()});
       $('showroomHistoryNext')&&($('showroomHistoryNext').onclick=()=>{historyPrevious.push(historyBefore);const last=audit[99];historyBefore={beforeCreated:last.created,beforeId:last.id};refresh()});
       $('showroomClearFilters').onclick=()=>{dc='';query='';channel='';productGroup='';cardView='all';cursor='';previous=[];historyBefore=null;historyPrevious=[];$('showroomDc').value='';$('showroomQuery').value='';$('showroomChannel').value='';$('showroomProductGroup').value='';refresh();};
@@ -1548,7 +1626,7 @@ gsStartWorkspace().then(()=>{try{if(Sync.getState&&syncDiff().length)cloudPersis
       $('showroomRefresh').onclick=()=>refresh();
       $('showroomFilters').onsubmit = e => { e.preventDefault(); dc=$('showroomDc').value; query=$('showroomQuery').value.trim(); channel=$('showroomChannel').value; productGroup=$('showroomProductGroup').value; cursor=''; previous=[]; historyBefore=null;historyPrevious=[];refresh(); };
       $('showroomEmergency').onclick=emergencyLookup;
-      document.querySelectorAll('[data-emergency-row]').forEach(b=>b.onclick=()=>choose(visible[b.dataset.emergencyRow],data.snapshot.id,true));
+      document.querySelectorAll('[data-other-dcs]').forEach(b=>b.onclick=()=>checkOtherDcs(visible[b.dataset.otherDcs],data.snapshot.id));
       $('showroomUpload').onclick = () => upload(map);
       if ($('showroomPrev')) $('showroomPrev').onclick = () => { cursor = previous.pop(); refresh(); };
       if ($('showroomNext')) $('showroomNext').onclick = () => { previous.push(cursor); cursor = visible.at(-1).order_id; refresh(); };
@@ -1571,7 +1649,7 @@ gsStartWorkspace().then(()=>{try{if(Sync.getState&&syncDiff().length)cloudPersis
   const baseRender=render;
   render=function(){
     if(view===pageId&&!allowed())view='overview';
-    if(view!==pageId){baseRender();return;}
+    if(view!==pageId){allocationTableObserver?.disconnect();baseRender();return;}
     $('title').textContent='Showroom Stock Allocation';
     $('subtitle').textContent='Sales Fulfilment · All regions / distribution centres';
     document.querySelectorAll('[data-nav]').forEach(b=>b.classList.toggle('active',b.dataset.nav===pageId));
@@ -1674,6 +1752,61 @@ gsStartWorkspace().then(()=>{try{if(Sync.getState&&syncDiff().length)cloudPersis
     }
     return value;
   };
+})();
+
+/* Inline DC current-reason editor. Uses the Tracker's existing permissions and persistence. */
+(() => {
+  if(typeof tableBody!=='function'||typeof canDC!=='function'||typeof closingDates!=='function')return;
+  if(!document.getElementById('dc-inline-reason-style')){
+    const style=document.createElement('style');style.id='dc-inline-reason-style';
+    style.textContent='.dc-inline-reason{min-width:215px;max-width:270px}.dc-inline-reason-controls{display:flex;align-items:center;gap:6px}.dc-inline-reason select{min-width:145px;width:190px;max-width:210px;padding:7px;font:inherit}.dc-inline-reason .btn{padding:7px 10px;font-size:12px;white-space:nowrap}.dc-inline-reason small{white-space:normal}.dc-inline-reason select:focus-visible{outline:2px solid #087e82;outline-offset:2px}';document.head.append(style);
+  }
+  const drafts=new Map(),baseTableBody=tableBody;
+  const fingerprint=row=>JSON.stringify([row.dc,row.current||'',row.first||'',row.updated||'',row.completedDate||'',row.cancelledDate||'']);
+  const permitted=row=>['SO','STO','dc'].includes(view)&&canDC(row)&&scope().some(r=>r.id===row.id);
+  function editCell(cell,row){
+    const current=String(row.current||''),draft=drafts.get(row.id),initialFingerprint=fingerprint(row);
+    const container=document.createElement('div');container.className='dc-inline-reason';
+    const controls=document.createElement('div');controls.className='dc-inline-reason-controls';
+    const select=document.createElement('select');select.dataset.inlineReason=row.id;select.setAttribute('aria-label','Current reason for order '+row.order+' line '+row.line);
+    select.add(new Option('Select reason',''));
+    [...new Set([current,...reasonChoices()].filter(Boolean))].sort(compareReasons).forEach(reason=>select.add(new Option(reason,reason)));
+    select.value=draft?.value??current;
+    const save=document.createElement('button');save.type='button';save.className='btn';save.textContent='Save';save.dataset.inlineSave=row.id;save.setAttribute('aria-label','Save reason for order '+row.order+' line '+row.line);
+    const status=document.createElement('small');status.setAttribute('role','status');status.setAttribute('aria-live','polite');
+    const update=()=>{save.disabled=!select.value||select.value===current;status.textContent=save.disabled?'':'Unsaved change';};
+    select.onchange=()=>{if(select.value===current)drafts.delete(row.id);else drafts.set(row.id,{value:select.value,before:draft?.before||initialFingerprint});update();};
+    save.onclick=()=>{
+      const record=rows.find(r=>r.id===row.id),entry=drafts.get(row.id);
+      if(!record||!permitted(record)){notify('This line is outside your permitted DC scope.');return;}
+      if(!entry||entry.before!==fingerprint(record)){notify('This line changed. Review its latest reason before saving.');drafts.delete(row.id);tableBody();return;}
+      if(!reasonChoices().includes(entry.value)&&entry.value!==record.current){notify('Select a valid current reason.');return;}
+      const dates=closingDates(record,{current:entry.value});
+      if(dates.completedDate&&(!aDate(dates.completedDate)||!aDate(record.created)||dates.completedDate<record.created||dates.completedDate>today)||dates.cancelledDate&&(!aDate(dates.cancelledDate)||(aDate(record.created)&&dates.cancelledDate<record.created)||dates.cancelledDate>today)){
+        status.textContent='Use Open / update to verify the actual closing date.';return;
+      }
+      save.disabled=true;select.disabled=true;
+      const old={...record},oldPatch=patches[record.id],at=new Date().toISOString();
+      const actor=(typeof actorName==='function'?actorName():$('role').selectedOptions[0].text)+($('role').value==='dc'?' / '+record.dc:'');
+      const delta={...dates,current:entry.value,first:record.first||entry.value,updated:at,history:[...(record.history||[]),{at,actor,summary:'Inline DC reason: '+(record.current||'blank')+' → '+entry.value+'. Initial reason retained.'}]};
+      Object.assign(record,delta);patches[record.id]={...(patches[record.id]||{}),...delta};
+      if(!persist()){
+        for(const key of Object.keys(delta))if(!(key in old))delete record[key];
+        Object.assign(record,old);if(oldPatch)patches[record.id]=oldPatch;else delete patches[record.id];
+        status.textContent='Could not save. Please retry.';save.disabled=false;select.disabled=false;return;
+      }
+      drafts.delete(record.id);if(typeof queueRmEpisodeCapture==='function')queueRmEpisodeCapture();if(typeof captureRmTrends==='function')captureRmTrends();tableBody();notify('Current reason updated.');
+    };
+    update();controls.append(select,save);container.append(controls,status);cell.replaceChildren(container);
+  }
+  function mount(){
+    if(!['SO','STO','dc'].includes(view)||!$('tbody'))return;
+    const table=$('tbody').closest('table'),header=table.querySelector('[data-sort="current"]');if(!header)return;
+    const index=[...header.parentElement.children].indexOf(header),lookup=new Map(rows.map(r=>[r.id,r]));
+    for(const tr of $('tbody').rows){const id=tr.querySelector('[data-id]')?.dataset.id,row=lookup.get(id);if(row&&permitted(row)&&tr.cells[index])editCell(tr.cells[index],row);}
+  }
+  tableBody=function(){const value=baseTableBody.apply(this,arguments);mount();return value;};
+  mount();
 })();
 
 render();
